@@ -2099,6 +2099,23 @@ struct bgs_s
 	void *(*AllocXAnim)(int);
 };
 
+typedef struct cStaticModel_s
+{
+	u_int16_t writable;
+	XModel_t *xmodel;
+	vec3_t origin;
+	vec3_t invScaledAxis[3];
+	vec3_t absmin;
+	vec3_t absmax;
+} cStaticModel_t;
+
+typedef struct clipMap_s
+{
+	const char *name;
+	unsigned int numStaticModels;
+	cStaticModel_t *staticModelList;
+} clipMap_t; // a lot more stuff here
+
 #define	SVF_NOCLIENT  0x00000001
 #define	SVF_BROADCAST 0x00000008
 
@@ -2304,6 +2321,14 @@ static const int bgs_offset = 0x0856E3A0;
 static const int bgs_offset = 0x0860B420;
 #endif
 
+#if COD_VERSION == COD2_1_0
+static const int cm_offset = 0x08185BE0;
+#elif COD_VERSION == COD2_1_2
+static const int cm_offset = 0x08187D40;
+#elif COD_VERSION == COD2_1_3
+static const int cm_offset = 0x08188DC0;
+#endif
+
 #define scrVarPub (*((scrVarPub_t*)( varpub_offset )))
 #define scrVmPub (*((scrVmPub_t*)( vmpub_offset )))
 #define scrVarGlob (((VariableValueInternal*)( varglob_offset )))
@@ -2313,6 +2338,7 @@ static const int bgs_offset = 0x0860B420;
 #define level (*((level_locals_t*)( level_offset )))
 #define scr_const (*((stringIndex_t*)( const_offset )))
 #define level_bgs (*((bgs_s*)( bgs_offset )))
+#define cm (*((clipMap_t*)( cm_offset )))
 
 // Check for critical structure sizes and fail if not match
 #if __GNUC__ >= 6
