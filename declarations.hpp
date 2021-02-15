@@ -1398,22 +1398,6 @@ typedef enum
 
 typedef struct
 {
-	int cluster;
-	int area;
-	int firstLeafBrush;
-	int numLeafBrushes;
-	int firstLeafSurface;
-	int numLeafSurfaces;
-} cLeaf_t;
-
-typedef struct cmodel_s
-{
-	vec3_t mins, maxs;
-	cLeaf_t leaf;
-} cmodel_t;
-
-typedef struct
-{
 	int svFlags;
 	int clientMask[2];
 	vec3_t absmin;
@@ -2099,6 +2083,13 @@ struct bgs_s
 	void *(*AllocXAnim)(int);
 };
 
+typedef struct
+{
+	char material[64];
+	int surfaceFlags;
+	int contentFlags;
+} dmaterial_t;
+
 typedef struct cStaticModel_s
 {
 	u_int16_t writable;
@@ -2109,12 +2100,161 @@ typedef struct cStaticModel_s
 	vec3_t absmax;
 } cStaticModel_t;
 
+typedef struct cplane_s
+{
+	vec3_t normal;
+	float dist;
+	byte type;
+	byte signbits;
+	byte pad[2];
+} cplane_t;
+
+typedef struct cbrushside_s
+{
+	cplane_t *plane;
+	unsigned int materialNum;
+} cbrushside_t;
+
+typedef struct
+{
+	cplane_t *plane;
+	int16_t children[2];
+} cNode_t;
+
+typedef struct cLeaf_s
+{
+	u_int16_t firstCollAabbIndex;
+	u_int16_t collAabbCount;
+	int brushContents;
+	int terrainContents;
+	vec3_t mins;
+	vec3_t maxs;
+	int leafBrushNode;
+	int16_t cluster;
+	int16_t pad;
+} cLeaf_t;
+
+typedef struct
+{
+	u_int16_t *brushes;
+} cLeafBrushNodeLeaf_t;
+
+typedef struct
+{
+	float dist;
+	float range;
+	u_int16_t childOffset[2];
+} cLeafBrushNodeChildren_t;
+
+typedef union
+{
+	cLeafBrushNodeLeaf_t leaf;
+	cLeafBrushNodeChildren_t children;
+} cLeafBrushNodeData_t;
+
+#pragma pack(push, 2)
+typedef struct cLeafBrushNode_s
+{
+	byte axis;
+	u_int16_t leafBrushCount;
+	int contents;
+	cLeafBrushNodeData_t data;
+} cLeafBrushNode_t;
+#pragma pack(pop)
+
+typedef struct CollisionBorder
+{
+	float distEq[3];
+	float zBase;
+	float zSlope;
+	float start;
+	float length;
+} CollisionBorder_t;
+
+typedef struct CollisionPartition
+{
+	char triCount;
+	char borderCount;
+	int firstTri;
+	CollisionBorder_t *borders;
+} CollisionPartition_t;
+
+typedef union
+{
+	int firstChildIndex;
+	int partitionIndex;
+} CollisionAabbTreeIndex_t;
+
+typedef struct CollisionAabbTree_s
+{
+	float origin[3];
+	float halfSize[3];
+	u_int16_t materialIndex;
+	u_int16_t childCount;
+	CollisionAabbTreeIndex_t u;
+} CollisionAabbTree_t;
+
+typedef struct cmodel_t
+{
+	vec3_t mins;
+	vec3_t maxs;
+	float radius;
+	cLeaf_t leaf;
+} cmodel_t;
+
+typedef struct __attribute__((aligned(16))) cbrush_t
+{
+	float mins[3];
+	int contents;
+	float maxs[3];
+	unsigned int numsides;
+	cbrushside_t *sides;
+	int16_t axialMaterialNum[2][3];
+} cbrush_t;
+
 typedef struct clipMap_s
 {
 	const char *name;
 	unsigned int numStaticModels;
 	cStaticModel_t *staticModelList;
-} clipMap_t; // a lot more stuff here
+	unsigned int numMaterials;
+	dmaterial_t *materials;
+	unsigned int numBrushSides;
+	cbrushside_t *brushsides;
+	unsigned int numNodes;
+	cNode_t *nodes;
+	unsigned int numLeafs;
+	cLeaf_t *leafs;
+	unsigned int leafbrushNodesCount;
+	cLeafBrushNode_t *leafbrushNodes;
+	unsigned int numLeafBrushes;
+	u_int16_t *leafbrushes;
+	unsigned int numLeafSurfaces;
+	unsigned int *leafsurfaces;
+	unsigned int vertCount;
+	float (*verts)[3];
+	unsigned int edgeCount;
+	void *edges; // CMod_LoadCollisionEdges: no reference. Size - 48.
+	int triangleCount;
+	void *triangles; // CMod_LoadCollisionTriangles: no reference. Size - 72.
+	int borderCount;
+	CollisionBorder_t *borders;
+	int partitionCount;
+	CollisionPartition_t *partitions;
+	int aabbTreeCount;
+	CollisionAabbTree_t *aabbTrees;
+	unsigned int numSubModels;
+	cmodel_t *cmodels;
+	u_int16_t numBrushes;
+	cbrush_t *brushes;
+	int numClusters;
+	int clusterBytes;
+	byte *visibility;
+	int vised;
+	cbrush_t *box_brush;
+	cmodel_t box_model;
+	unsigned int checksum; // proably not but...idk
+} clipMap_t;
 
 #define	SVF_NOCLIENT  0x00000001
 #define	SVF_BROADCAST 0x00000008
