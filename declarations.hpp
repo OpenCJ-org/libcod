@@ -2266,6 +2266,14 @@ typedef struct clipMap_s
 	int vised;
 } clipMap_t; // more stuff here
 
+#define MAX_VASTRINGS 2
+
+struct va_info_t
+{
+	char va_string[MAX_VASTRINGS][1024];
+	int index;
+};
+
 #define	SVF_NOCLIENT  0x00000001
 #define	SVF_BROADCAST 0x00000008
 
