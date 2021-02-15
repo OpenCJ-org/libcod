@@ -2212,6 +2212,19 @@ typedef struct __attribute__((aligned(16))) cbrush_t
 	int16_t axialMaterialNum[2][3];
 } cbrush_t;
 
+
+typedef struct
+{
+	float data[12];
+}
+CollisionEdge_t;
+
+typedef struct
+{
+	int index[18];
+}
+CollisionTriangle_t;
+
 typedef struct clipMap_s
 {
 	const char *name;
@@ -2234,9 +2247,9 @@ typedef struct clipMap_s
 	unsigned int vertCount;
 	float (*verts)[3];
 	unsigned int edgeCount;
-	void *edges; // CMod_LoadCollisionEdges: no reference. Size - 48.
-	int triangleCount;
-	void *triangles; // CMod_LoadCollisionTriangles: no reference. Size - 72.
+	CollisionEdge_t *edges;
+	int triCount;
+	CollisionTriangle_t *triIndices;
 	int borderCount;
 	CollisionBorder_t *borders;
 	int partitionCount;
@@ -2251,10 +2264,7 @@ typedef struct clipMap_s
 	int clusterBytes;
 	byte *visibility;
 	int vised;
-	cbrush_t *box_brush;
-	cmodel_t box_model;
-	unsigned int checksum; // proably not but...idk
-} clipMap_t;
+} clipMap_t; // more stuff here
 
 #define	SVF_NOCLIENT  0x00000001
 #define	SVF_BROADCAST 0x00000008
