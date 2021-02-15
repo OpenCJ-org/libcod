@@ -4,7 +4,8 @@
 /* gsc functions */
 #include "gsc.hpp"
 
-void gsc_level_getnumstaticmodels();
-void gsc_level_getstaticmodel();
+void gsc_level_getnumberofstaticmodels();
+void gsc_level_getstaticmodelname();
+void gsc_level_getstaticmodelorigin();
 
 #endif

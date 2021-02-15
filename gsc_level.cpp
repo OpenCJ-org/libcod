@@ -2,34 +2,51 @@
 
 #if COMPILE_LEVEL == 1
 
-void gsc_level_getnumstaticmodels()
+void gsc_level_getnumberofstaticmodels()
 {
 	stackPushInt(cm.numStaticModels);
 }
 
-void gsc_level_getstaticmodel()
+void gsc_level_getstaticmodelname()
 {
 	int index;
 
 	if ( ! stackGetParams("i", &index))
 	{
-		stackError("gsc_level_getstaticmodel() argument is undefined or has a wrong type");
+		stackError("gsc_level_getstaticmodelname() argument is undefined or has a wrong type");
 		stackPushUndefined();
 		return;
 	}
 
 	if (index < 0 || index >= (int)cm.numStaticModels)
 	{
-		stackError("gsc_level_getstaticmodel() index is out of range");
+		stackError("gsc_level_getstaticmodelname() index is out of range");
 		stackPushUndefined();
 		return;
 	}
 
-	stackPushArray();
 	stackPushString(cm.staticModelList[index].xmodel->name);
-	stackPushArrayLast();
+}
+
+void gsc_level_getstaticmodelorigin()
+{
+	int index;
+
+	if ( ! stackGetParams("i", &index))
+	{
+		stackError("gsc_level_getstaticmodelorigin() argument is undefined or has a wrong type");
+		stackPushUndefined();
+		return;
+	}
+
+	if (index < 0 || index >= (int)cm.numStaticModels)
+	{
+		stackError("gsc_level_getstaticmodelorigin() index is out of range");
+		stackPushUndefined();
+		return;
+	}
+
 	stackPushVector(cm.staticModelList[index].origin);
-	stackPushArrayLast();
 }
 
 #endif

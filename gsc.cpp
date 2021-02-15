@@ -103,8 +103,9 @@ scr_function_t scriptFunctions[] =
 #endif
 
 #if COMPILE_LEVEL == 1
-	{"getnumstaticmodels", gsc_level_getnumstaticmodels, 0},
-	{"getstaticmodel", gsc_level_getstaticmodel, 0},
+	{"getnumberofstaticmodels", gsc_level_getnumberofstaticmodels, 0},
+	{"getstaticmodelname", gsc_level_getstaticmodelname, 0},
+	{"getstaticmodelorigin", gsc_level_getstaticmodelorigin, 0},
 #endif
 
 #if COMPILE_MEMORY == 1
