@@ -2215,15 +2215,25 @@ typedef struct __attribute__((aligned(16))) cbrush_t
 
 typedef struct
 {
-	float data[12];
+	float position[3];
+	float normal[3][3];
 }
 CollisionEdge_t;
 
 typedef struct
 {
-	int index[18];
+	float normal[3];
+	float distance;
+	float unknown[8];
+	unsigned int vertex_id[3];
+	int edge_id[3];
 }
 CollisionTriangle_t;
+
+typedef void DynEntityDef;
+typedef void DynEntityPose;
+typedef void DynEntityClient;
+typedef void DynEntityColl;
 
 typedef struct clipMap_s
 {
@@ -2264,7 +2274,17 @@ typedef struct clipMap_s
 	int clusterBytes;
 	byte *visibility;
 	int vised;
-} clipMap_t; // more stuff here
+	int numEntityChars;
+	char *entityString;
+	cbrush_t *box_brush;
+	cmodel_t box_model;
+	u_int16_t dynEntCount[2];
+	DynEntityDef *dynEntDefList[2];
+	DynEntityPose *dynEntPoseList[2];
+	DynEntityClient *dynEntClientList[2];
+	DynEntityColl *dynEntCollList[2];
+	unsigned int checksum;
+} clipMap_t; // verified
 
 #define MAX_VASTRINGS 2
 
