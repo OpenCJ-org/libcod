@@ -928,11 +928,6 @@ void gsc_utils_remotecommand()
 	msg_t * msg = (msg_t *)pointerMsg;
 	NET_StringToAdr(sFrom, &from);
 
-	RemoteCommand(from, msg);
-}
-
-void RemoteCommand(netadr_t from, msg_t *msg)
-{
 #if COD_VERSION == COD2_1_0
 	int lasttime_offset = 0x0848B674;
 #elif COD_VERSION == COD2_1_2

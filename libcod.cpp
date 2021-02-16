@@ -1081,7 +1081,17 @@ void hook_SVC_RemoteCommand(netadr_t from, msg_t *msg)
 
 	if (!codecallback_remotecommand || badRconPassword || !Scr_IsSystemActive() || isRconCommandWithForwardedOutput(Cmd_Argv(2)))
 	{
-		RemoteCommand(from, msg);
+#if COD_VERSION == COD2_1_0
+		int lasttime_offset = 0x0848B674;
+#elif COD_VERSION == COD2_1_2
+		int lasttime_offset = 0x0849EB74;
+#elif COD_VERSION == COD2_1_3
+		int lasttime_offset = 0x0849FBF4;
+#endif
+
+		*(int *)lasttime_offset = 0;
+
+		SVC_RemoteCommand(from, msg);
 	}
 	else
 	{
