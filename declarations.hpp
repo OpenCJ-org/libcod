@@ -2285,6 +2285,73 @@ typedef struct clipMap_s
 	unsigned int checksum;
 } clipMap_t; // verified
 
+enum LumpType
+{
+	LUMP_UNKNOWN,
+	LUMP_MATERIALS,
+	LUMP_LIGHTBYTES,
+	LUMP_LIGHTGRIDENTRIES,
+	LUMP_LIGHTGRIDCOLORS,
+	LUMP_PLANES,
+	LUMP_BRUSHSIDES,
+	LUMP_BRUSHES,
+	LUMP_TRIANGLES,
+	LUMP_DRAWVERTS,
+	LUMP_DRAWINDICES,
+	LUMP_CULLGROUPS,
+	LUMP_CULLGROUPINDICES,
+	LUMP_OBSOLETE_1,
+	LUMP_OBSOLETE_2,
+	LUMP_OBSOLETE_3,
+	LUMP_OBSOLETE_4,
+	LUMP_OBSOLETE_5,
+	LUMP_PORTALVERTS,
+	LUMP_OCCLUDER,
+	LUMP_OCCLUDERPLANES,
+	LUMP_OCCLUDEREDGES,
+	LUMP_OCCLUDERINDICES,
+	LUMP_AABBTREES,
+	LUMP_CELLS,
+	LUMP_PORTALS,
+	LUMP_NODES,
+	LUMP_LEAFS,
+	LUMP_LEAFBRUSHES,
+	LUMP_LEAFSURFACES,
+	LUMP_COLLISIONVERTS,
+	LUMP_COLLISIONEDGES,
+	LUMP_COLLISIONTRIS,
+	LUMP_COLLISIONBORDERS,
+	LUMP_COLLISIONPARTITIONS,
+	LUMP_COLLISIONAABBS,
+	LUMP_MODELS,
+	LUMP_VISIBILITY,
+	LUMP_ENTITIES,
+};
+
+struct BspChunk
+{
+	enum LumpType type;
+	unsigned int length;
+};
+
+typedef struct BspHeader
+{
+	unsigned int ident;
+	unsigned int version;
+	unsigned int chunkCount;
+	struct BspChunk chunks[100];
+} BspHeader;
+
+typedef struct comBspGlob_t
+{
+	char name[64];
+	BspHeader *header;
+	unsigned int fileSize;
+	unsigned int checksum;
+	enum LumpType loadedLumpType;
+	const void *loadedLumpData;
+} comBspGlob_t;
+
 #define MAX_VASTRINGS 2
 
 struct va_info_t
@@ -2506,6 +2573,14 @@ static const int cm_offset = 0x08187D40;
 static const int cm_offset = 0x08188DC0;
 #endif
 
+#if COD_VERSION == COD2_1_0
+static const int bspglob_offset = 0x08185BC8;
+#elif COD_VERSION == COD2_1_2
+static const int bspglob_offset = 0x08187D28;
+#elif COD_VERSION == COD2_1_3
+static const int bspglob_offset = 0x08188DA8;
+#endif
+
 #define scrVarPub (*((scrVarPub_t*)( varpub_offset )))
 #define scrVmPub (*((scrVmPub_t*)( vmpub_offset )))
 #define scrVarGlob (((VariableValueInternal*)( varglob_offset )))
@@ -2516,6 +2591,7 @@ static const int cm_offset = 0x08188DC0;
 #define scr_const (*((stringIndex_t*)( const_offset )))
 #define level_bgs (*((bgs_s*)( bgs_offset )))
 #define cm (*((clipMap_t*)( cm_offset )))
+#define comBspGlob (*((comBspGlob_t*)( bspglob_offset ))) // freed by Com_UnloadBsp() after initialization
 
 // Check for critical structure sizes and fail if not match
 #if __GNUC__ >= 6
