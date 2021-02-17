@@ -192,6 +192,33 @@ static const FS_LoadDir_t FS_LoadDir = (FS_LoadDir_t)0x080A22D8;
 static const FS_LoadDir_t FS_LoadDir = (FS_LoadDir_t)0x080A241C;
 #endif
 
+typedef void (*FS_Printf_t)(fileHandle_t h, const char *fmt, ...);
+#if COD_VERSION == COD2_1_0
+static const FS_Printf_t FS_Printf = (FS_Printf_t)0x0809E52A;
+#elif COD_VERSION == COD2_1_2
+static const FS_Printf_t FS_Printf = (FS_Printf_t)0x080A05E8;
+#elif COD_VERSION == COD2_1_3
+static const FS_Printf_t FS_Printf = (FS_Printf_t)0x080A072C;
+#endif
+
+typedef fileHandle_t (*FS_FOpenFileWrite_t)(const char* filename);
+#if COD_VERSION == COD2_1_0
+static const FS_FOpenFileWrite_t FS_FOpenFileWrite = (FS_FOpenFileWrite_t)0x0809CDDE;
+#elif COD_VERSION == COD2_1_2
+static const FS_FOpenFileWrite_t FS_FOpenFileWrite = (FS_FOpenFileWrite_t)0x0809EE9C;
+#elif COD_VERSION == COD2_1_3
+static const FS_FOpenFileWrite_t FS_FOpenFileWrite = (FS_FOpenFileWrite_t)0x0809EFE0;
+#endif
+
+typedef qboolean (*FS_FCloseFile_t)(fileHandle_t f);
+#if COD_VERSION == COD2_1_0
+static const FS_FCloseFile_t FS_FCloseFile = (FS_FCloseFile_t)0x0809CC52;
+#elif COD_VERSION == COD2_1_2
+static const FS_FCloseFile_t FS_FCloseFile = (FS_FCloseFile_t)0x0809ED10;
+#elif COD_VERSION == COD2_1_3
+static const FS_FCloseFile_t FS_FCloseFile = (FS_FCloseFile_t)0x0809EE54;
+#endif
+
 typedef xfunction_t (*Scr_GetFunction_t)(const char** v_functionName, qboolean* v_developer);
 #if COD_VERSION == COD2_1_0
 static const Scr_GetFunction_t Scr_GetFunction = (Scr_GetFunction_t)0x08115824;
