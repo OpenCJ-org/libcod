@@ -2212,7 +2212,6 @@ typedef struct __attribute__((aligned(16))) cbrush_t
 	int16_t axialMaterialNum[2][3];
 } cbrush_t;
 
-
 typedef struct
 {
 	float position[3];

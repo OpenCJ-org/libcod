@@ -77,6 +77,10 @@ void hook_sv_init(const char *format, ...)
 	sv_wwwDownload = Cvar_FindVar("sv_wwwDownload");
 #endif
 
+#if COMPILE_BSP == 1
+	BSP_AddCommand();
+#endif
+
 }
 
 void hook_sv_spawnserver(const char *format, ...)
