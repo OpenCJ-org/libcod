@@ -142,13 +142,13 @@ void CM_DebugDoAll_f()
 {
 	if (!scrVarPub.developer)
 	{
-		Com_DPrintf("BSP_DecompileMap: developer mode needs to be enabled for decompilation.\n");
+		Com_Printf("BSP_DecompileMap: developer mode needs to be enabled for decompilation.\n");
 		return;
 	}
 
 	f = FS_FOpenFileWrite("bsp_debug.log");
 
-	if(f < 1)
+	if (f < 1)
 	{
 		Com_DPrintf("Couldn't write file bsp_debug.log");
 		return;
@@ -171,7 +171,7 @@ void BSP_DecompileMap_f()
 {
 	if (!scrVarPub.developer)
 	{
-		Com_DPrintf("BSP_DecompileMap: developer mode needs to be enabled for decompilation.\n");
+		Com_Printf("BSP_DecompileMap: developer mode needs to be enabled for decompilation.\n");
 		return;
 	}
 
@@ -180,8 +180,8 @@ void BSP_DecompileMap_f()
 
 void BSP_AddCommand()
 {
-	Cmd_AddCommand("map_decompile", BSP_DecompileMap_f);
-	Cmd_AddCommand("map_dumpbsp", CM_DebugDoAll_f);
+	Cmd_AddCommand("bsp_decompile", BSP_DecompileMap_f);
+	Cmd_AddCommand("bsp_debug", CM_DebugDoAll_f);
 }
 
 #endif
