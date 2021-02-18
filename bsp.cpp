@@ -6,7 +6,7 @@ static fileHandle_t f;
 
 void CM_DebugViewBasicDetails()
 {
-	FS_Printf( f, "%s contains:\n\n", cm.name);
+	FS_Printf( f, "%s:\n\n", cm.name);
 	FS_Printf( f, "StaticModels: %d\n", cm.numStaticModels);
 	FS_Printf( f, "Materials: %d\n", cm.numMaterials);
 	FS_Printf( f, "BrushSides: %d\n", cm.numBrushSides);
@@ -142,7 +142,7 @@ void CM_DebugDoAll_f()
 {
 	if (!scrVarPub.developer)
 	{
-		Com_Printf("BSP_DecompileMap: developer mode needs to be enabled for decompilation.\n");
+		Com_Printf("CM_DebugDoAll: developer mode needs to be enabled for decompilation.\n");
 		return;
 	}
 
@@ -150,7 +150,7 @@ void CM_DebugDoAll_f()
 
 	if (f < 1)
 	{
-		Com_DPrintf("Couldn't write file bsp_debug.log");
+		Com_DPrintf("CM_DebugDoAll: Couldn't write file bsp_debug.log");
 		return;
 	}
 
@@ -167,21 +167,9 @@ void CM_DebugDoAll_f()
 	Com_DPrintf("CM_DebugDoAll: info dumped to bsp_debug.log\n");
 }
 
-void BSP_DecompileMap_f()
-{
-	if (!scrVarPub.developer)
-	{
-		Com_Printf("BSP_DecompileMap: developer mode needs to be enabled for decompilation.\n");
-		return;
-	}
-
-	Com_DPrintf("BSP_DecompileMap: mapname: %s\n", cm.name);
-}
-
 void BSP_AddCommand()
 {
-	Cmd_AddCommand("bsp_decompile", BSP_DecompileMap_f);
-	Cmd_AddCommand("bsp_debug", CM_DebugDoAll_f);
+	Cmd_AddCommand("bsp_dumpinfo", CM_DebugDoAll_f);
 }
 
 #endif
