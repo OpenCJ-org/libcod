@@ -48,8 +48,6 @@ void CM_DebugPrintMaterialInfo()
 	FS_Printf( f, "used content flags: 0x%08x\n", content);
 	FS_Printf( f, "\n");
 	FS_Printf( f, "-------------------------------------------------\n");
-
-
 }
 
 void CM_DebugCLeafBrushNodes()
@@ -119,22 +117,19 @@ void CM_DebugSubModels()
 	FS_Printf( f, "used content flags: 0x%08x\n", brushcontent);
 	FS_Printf( f, "\n");
 	FS_Printf( f, "-----------------------------------------------\n");
-
 }
 
 void CM_WalkAABB_Trees()
 {
 	int i;
-	CollisionAabbTree_t* tr;
-
 	FS_Printf( f, "---------------- AABB-Trees -------------------\n");
+	CollisionAabbTree_t* tr;
 
 	for(i = 0; i < cm.aabbTreeCount; ++i)
 	{
 		tr = &cm.aabbTrees[i];
 		FS_Printf( f, "AABBTree num=%d, Mat: %s, childs=%d, firstChild=%d\n", i, cm.materials[tr->materialIndex].material, tr->childCount, tr->u.firstChildIndex);
 	}
-
 	FS_Printf( f, "-----------------------------------------------\n");
 }
 
@@ -142,15 +137,15 @@ void CM_DebugDoAll_f()
 {
 	if (!scrVarPub.developer)
 	{
-		Com_Printf("CM_DebugDoAll: developer mode needs to be enabled for decompilation.\n");
+		Com_Printf("CM_DebugDoAll: developer mode needs to be enabled for debugging.\n");
 		return;
 	}
 
-	f = FS_FOpenFileWrite("bsp_debug.log");
+	f = FS_FOpenFileWrite("cm_debug.log");
 
 	if (f < 1)
 	{
-		Com_DPrintf("CM_DebugDoAll: Couldn't write file bsp_debug.log");
+		Com_DPrintf("CM_DebugDoAll: Couldn't write file cm_debug.log");
 		return;
 	}
 
@@ -164,12 +159,12 @@ void CM_DebugDoAll_f()
 
 	FS_FCloseFile(f);
 
-	Com_DPrintf("CM_DebugDoAll: info dumped to bsp_debug.log\n");
+	Com_DPrintf("CM_DebugDoAll: info dumped to cm_debug.log\n");
 }
 
-void BSP_AddCommand()
+void CM_AddCommand()
 {
-	Cmd_AddCommand("bsp_dumpinfo", CM_DebugDoAll_f);
+	Cmd_AddCommand("cm_dumpinfo", CM_DebugDoAll_f);
 }
 
 #endif

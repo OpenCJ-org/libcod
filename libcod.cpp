@@ -78,7 +78,7 @@ void hook_sv_init(const char *format, ...)
 #endif
 
 #if COMPILE_BSP == 1
-	BSP_AddCommand();
+	CM_AddCommand();
 #endif
 
 }

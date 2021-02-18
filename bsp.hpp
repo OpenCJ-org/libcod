@@ -4,7 +4,6 @@
 /* gsc functions */
 #include "gsc.hpp"
 
-void BSP_DecompileMap();
-void BSP_AddCommand();
+void CM_AddCommand();
 
 #endif
