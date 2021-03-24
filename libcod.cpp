@@ -83,6 +83,8 @@ void hook_sv_init(const char *format, ...)
 
 }
 
+void hook_bad_printf(const char *format, ...) {}
+
 void hook_sv_spawnserver(const char *format, ...)
 {
 	char s[COD2_MAX_STRINGLENGTH];
@@ -1421,6 +1423,7 @@ public:
 		cracking_hook_call(0x08070D3F, (int)Scr_GetCustomMethod);
 		cracking_hook_call(0x08110832, (int)Com_DPrintf);
 		cracking_hook_call(0x0808227A, (int)hook_scriptError);
+		cracking_hook_call(0x0808FCBE, (int)hook_bad_printf);
 
 #if COMPILE_PLAYER == 1
 		cracking_hook_call(0x0808F533, (int)hook_gamestate_info);
@@ -1493,6 +1496,7 @@ public:
 		cracking_hook_call(0x08070E0B, (int)Scr_GetCustomMethod);
 		cracking_hook_call(0x0811098E, (int)Com_DPrintf);
 		cracking_hook_call(0x08082346, (int)hook_scriptError);
+		cracking_hook_call(0x0808FD52, (int)hook_bad_printf);
 
 #if COMPILE_PLAYER == 1
 		cracking_hook_call(0x0808F5C7, (int)hook_gamestate_info);
