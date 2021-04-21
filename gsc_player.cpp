@@ -598,6 +598,22 @@ void gsc_player_getjumpslowdowntimer(scr_entref_t id)
 	stackPushInt(entity->client->ps.pm_time);
 }
 
+void gsc_player_clearjumpstate(scr_entref_t id)
+{
+	if (id >= MAX_CLIENTS)
+	{
+		stackError("gsc_player_clearjumpstate() entity %i is not a player", id);
+		stackPushUndefined();
+		return;
+	}
+
+	playerState_t *ps = SV_GameClientNum(id);
+
+	ps->pm_flags &= 0xF7u;
+	ps->pm_time = 0;
+	ps->jumpTime = 0;
+}
+
 void gsc_player_setg_speed(scr_entref_t id)
 {
 	int speed;
@@ -861,7 +877,6 @@ void gsc_player_isbot(scr_entref_t id)
 	}
 
 	client_t *client = &svs.clients[id];
-
 	stackPushBool(client->bot);
 }
 
@@ -905,7 +920,6 @@ void gsc_player_getcurrentoffhandslotammo(scr_entref_t id)
 	}
 
 	playerState_t *ps = SV_GameClientNum(id);
-
 	stackPushInt(ps->ammoclip[ps->offHandIndex - 1]);
 }
 
