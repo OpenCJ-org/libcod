@@ -2399,6 +2399,7 @@ struct va_info_t
 
 #define PMF_MANTLE 4
 #define PMF_LADDER 32
+#define PMF_SLIDING 0x200
 #define PMF_JUMPING 0x80000
 
 #define CONTENTS_SOLID          1
