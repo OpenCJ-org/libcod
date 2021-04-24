@@ -13,16 +13,15 @@ void gsc_player_velocity_set(scr_entref_t id)
 		return;
 	}
 
-	gentity_t *entity = &g_entities[id];
-
-	if (entity->client == NULL)
+	if (id >= MAX_CLIENTS)
 	{
 		stackError("gsc_player_velocity_set() entity %i is not a player", id);
 		stackPushUndefined();
 		return;
 	}
 
-	VectorCopy(velocity, entity->client->ps.velocity);
+	playerState_t *ps = SV_GameClientNum(id);
+	VectorCopy(velocity, ps->velocity);
 	stackPushBool(qtrue);
 }
 
@@ -37,35 +36,40 @@ void gsc_player_velocity_add(scr_entref_t id)
 		return;
 	}
 
-	gentity_t *entity = &g_entities[id];
-
-	if (entity->client == NULL)
+	if (id >= MAX_CLIENTS)
 	{
 		stackError("gsc_player_velocity_add() entity %i is not a player", id);
 		stackPushUndefined();
 		return;
 	}
 
-	VectorAdd(entity->client->ps.velocity, velocity, entity->client->ps.velocity);
+	playerState_t *ps = SV_GameClientNum(id);
+	VectorAdd(ps->velocity, velocity, ps->velocity);
 	stackPushBool(qtrue);
 }
 
 void gsc_player_velocity_get(scr_entref_t id)
 {
-	gentity_t *entity = &g_entities[id];
-
-	if (entity->client == NULL)
+	if (id >= MAX_CLIENTS)
 	{
 		stackError("gsc_player_velocity_get() entity %i is not a player", id);
 		stackPushUndefined();
 		return;
 	}
 
-	stackPushVector(entity->client->ps.velocity);
+	playerState_t *ps = SV_GameClientNum(id);
+	stackPushVector(ps->velocity);
 }
 
 void gsc_player_clientuserinfochanged(scr_entref_t id)
 {
+	if (id >= MAX_CLIENTS)
+	{
+		stackError("gsc_player_clientuserinfochanged() entity %i is not a player", id);
+		stackPushUndefined();
+		return;
+	}
+
 	ClientUserinfoChanged(id);
 	stackPushBool(qtrue);
 }
@@ -89,7 +93,6 @@ void gsc_player_get_userinfo(scr_entref_t id)
 	}
 
 	client_t *client = &svs.clients[id];
-
 	char *val = Info_ValueForKey(client->userinfo, key);
 
 	if (strlen(val))
@@ -117,7 +120,6 @@ void gsc_player_set_userinfo(scr_entref_t id)
 	}
 
 	client_t *client = &svs.clients[id];
-
 	Info_SetValueForKey(client->userinfo, key, value);
 	stackPushBool(qtrue);
 }
@@ -132,7 +134,6 @@ void gsc_player_button_ads(scr_entref_t id)
 	}
 
 	client_t *client = &svs.clients[id];
-
 	stackPushBool(client->lastUsercmd.buttons & KEY_MASK_ADS_MODE ? qtrue : qfalse);
 }
 
@@ -146,7 +147,6 @@ void gsc_player_button_left(scr_entref_t id)
 	}
 
 	client_t *client = &svs.clients[id];
-
 	stackPushBool(client->lastUsercmd.rightmove == KEY_MASK_MOVELEFT ? qtrue : qfalse);
 }
 
@@ -160,7 +160,6 @@ void gsc_player_button_right(scr_entref_t id)
 	}
 
 	client_t *client = &svs.clients[id];
-
 	stackPushBool(client->lastUsercmd.rightmove == KEY_MASK_MOVERIGHT ? qtrue : qfalse);
 }
 
@@ -174,7 +173,6 @@ void gsc_player_button_forward(scr_entref_t id)
 	}
 
 	client_t *client = &svs.clients[id];
-
 	stackPushBool(client->lastUsercmd.forwardmove == KEY_MASK_FORWARD ? qtrue : qfalse);
 }
 
@@ -188,7 +186,6 @@ void gsc_player_button_back(scr_entref_t id)
 	}
 
 	client_t *client = &svs.clients[id];
-
 	stackPushBool(client->lastUsercmd.forwardmove == KEY_MASK_BACK ? qtrue : qfalse);
 }
 
@@ -202,7 +199,6 @@ void gsc_player_button_leanleft(scr_entref_t id)
 	}
 
 	client_t *client = &svs.clients[id];
-
 	stackPushBool(client->lastUsercmd.buttons & KEY_MASK_LEANLEFT ? qtrue : qfalse);
 }
 
@@ -216,7 +212,6 @@ void gsc_player_button_leanright(scr_entref_t id)
 	}
 
 	client_t *client = &svs.clients[id];
-
 	stackPushBool(client->lastUsercmd.buttons & KEY_MASK_LEANRIGHT ? qtrue : qfalse);
 }
 
@@ -230,7 +225,6 @@ void gsc_player_button_reload(scr_entref_t id)
 	}
 
 	client_t *client = &svs.clients[id];
-
 	stackPushBool(client->lastUsercmd.buttons & KEY_MASK_RELOAD ? qtrue : qfalse);
 }
 
@@ -244,7 +238,6 @@ void gsc_player_button_jump(scr_entref_t id)
 	}
 
 	client_t *client = &svs.clients[id];
-
 	stackPushBool(client->lastUsercmd.buttons & KEY_MASK_JUMP ? qtrue : qfalse);
 }
 
@@ -258,7 +251,6 @@ void gsc_player_button_frag(scr_entref_t id)
 	}
 
 	client_t *client = &svs.clients[id];
-
 	stackPushBool(client->lastUsercmd.buttons & KEY_MASK_FRAG ? qtrue : qfalse);
 }
 
@@ -272,7 +264,6 @@ void gsc_player_button_smoke(scr_entref_t id)
 	}
 
 	client_t *client = &svs.clients[id];
-
 	stackPushBool(client->lastUsercmd.buttons & KEY_MASK_SMOKE ? qtrue : qfalse);
 }
 
@@ -378,12 +369,18 @@ void gsc_player_getping(scr_entref_t id)
 	}
 
 	client_t *client = &svs.clients[id];
-
 	stackPushInt(client->ping);
 }
 
 void gsc_player_clientcommand(scr_entref_t id)
 {
+	if (id >= MAX_CLIENTS)
+	{
+		stackError("gsc_player_clientcommand() entity %i is not a player", id);
+		stackPushUndefined();
+		return;
+	}
+
 	ClientCommand(id);
 	stackPushBool(qtrue);
 }
@@ -398,7 +395,6 @@ void gsc_player_getlastconnecttime(scr_entref_t id)
 	}
 
 	client_t *client = &svs.clients[id];
-
 	stackPushInt(client->lastConnectTime);
 }
 
@@ -412,7 +408,6 @@ void gsc_player_getlastmsg(scr_entref_t id)
 	}
 
 	client_t *client = &svs.clients[id];
-
 	stackPushInt(svs.time - client->lastPacketTime);
 }
 
@@ -426,7 +421,6 @@ void gsc_player_getclientstate(scr_entref_t id)
 	}
 
 	client_t *client = &svs.clients[id];
-
 	stackPushInt(client->state);
 }
 
@@ -440,7 +434,6 @@ void gsc_player_addresstype(scr_entref_t id)
 	}
 
 	client_t *client = &svs.clients[id];
-
 	stackPushInt(client->netchan.remoteAddress.type);
 }
 
@@ -496,7 +489,6 @@ void gsc_player_outofbandprint(scr_entref_t id)
 	}
 
 	client_t *client = &svs.clients[id];
-
 	NET_OutOfBandPrint(NS_SERVER, client->netchan.remoteAddress, cmd);
 	stackPushBool(qtrue);
 }
@@ -545,57 +537,47 @@ void gsc_player_resetnextreliabletime(scr_entref_t id)
 	}
 
 	client_t *client = &svs.clients[id];
-
 	client->floodprotect = 0;
 	stackPushBool(qtrue);
 }
 
 void gsc_player_ismantling(scr_entref_t id)
 {
-	gentity_t *entity = &g_entities[id];
-
-	if (entity->client == NULL)
+	if (id >= MAX_CLIENTS)
 	{
 		stackError("gsc_player_ismantling() entity %i is not a player", id);
 		stackPushUndefined();
 		return;
 	}
 
-	if (entity->client->ps.pm_flags & PMF_MANTLE)
-		stackPushBool(qtrue);
-	else
-		stackPushBool(qfalse);
+	playerState_t *ps = SV_GameClientNum(id);
+	stackPushBool(ps->pm_flags & PMF_MANTLE ? qtrue : qfalse);
 }
 
 void gsc_player_isonladder(scr_entref_t id)
 {
-	gentity_t *entity = &g_entities[id];
-
-	if (entity->client == NULL)
+	if (id >= MAX_CLIENTS)
 	{
 		stackError("gsc_player_isonladder() entity %i is not a player", id);
 		stackPushUndefined();
 		return;
 	}
 
-	if (entity->client->ps.pm_flags & PMF_LADDER)
-		stackPushBool(qtrue);
-	else
-		stackPushBool(qfalse);
+	playerState_t *ps = SV_GameClientNum(id);
+	stackPushBool(ps->pm_flags & PMF_LADDER ? qtrue : qfalse);
 }
 
 void gsc_player_getjumpslowdowntimer(scr_entref_t id)
 {
-	gentity_t *entity = &g_entities[id];
-
-	if (entity->client == NULL)
+	if (id >= MAX_CLIENTS)
 	{
 		stackError("gsc_player_getjumpslowdowntimer() entity %i is not a player", id);
 		stackPushUndefined();
 		return;
 	}
 
-	stackPushInt(entity->client->ps.pm_time);
+	playerState_t *ps = SV_GameClientNum(id);
+	stackPushInt(ps->pm_time);
 }
 
 void gsc_player_clearjumpstate(scr_entref_t id)
@@ -688,6 +670,13 @@ void gsc_player_setweaponfiremeleedelay(scr_entref_t id)
 		return;
 	}
 
+	if (id >= MAX_CLIENTS)
+	{
+		stackError("gsc_player_setweaponfiremeleedelay() entity %i is not a player", id);
+		stackPushUndefined();
+		return;
+	}
+
 	if (delay < 0)
 	{
 		stackError("gsc_player_setweaponfiremeleedelay() param must be equal or above zero");
@@ -695,16 +684,8 @@ void gsc_player_setweaponfiremeleedelay(scr_entref_t id)
 		return;
 	}
 
-	gentity_t *entity = &g_entities[id];
-
-	if (entity->client == NULL)
-	{
-		stackError("gsc_player_setweaponfiremeleedelay() entity %i is not a player", id);
-		stackPushUndefined();
-		return;
-	}
-
-	entity->client->ps.weaponDelay = delay;
+	playerState_t *ps = SV_GameClientNum(id);
+	ps->weaponDelay = delay;
 	stackPushBool(qtrue);
 }
 
@@ -748,16 +729,15 @@ void gsc_player_set_anim(scr_entref_t id)
 
 void gsc_player_getcooktime(scr_entref_t id)
 {
-	gentity_t *entity = &g_entities[id];
-
-	if (entity->client == NULL)
+	if (id >= MAX_CLIENTS)
 	{
 		stackError("gsc_player_getcooktime() entity %i is not a player", id);
 		stackPushUndefined();
 		return;
 	}
 
-	stackPushInt(entity->client->ps.grenadeTimeLeft);
+	playerState_t *ps = SV_GameClientNum(id);
+	stackPushInt(ps->grenadeTimeLeft);
 }
 
 void gsc_kick_slot()
@@ -816,7 +796,6 @@ void gsc_player_setguid(scr_entref_t id)
 	}
 
 	client_t *client = &svs.clients[id];
-
 	client->guid = guid;
 	stackPushBool(qtrue);
 }
@@ -891,7 +870,6 @@ void gsc_player_disableitempickup(scr_entref_t id)
 	}
 
 	extern int player_disableitempickup[MAX_CLIENTS];
-
 	player_disableitempickup[id] = 1;
 	stackPushBool(qtrue);
 }
@@ -906,7 +884,6 @@ void gsc_player_enableitempickup(scr_entref_t id)
 	}
 
 	extern int player_disableitempickup[MAX_CLIENTS];
-
 	player_disableitempickup[id] = 0;
 	stackPushBool(qtrue);
 }
