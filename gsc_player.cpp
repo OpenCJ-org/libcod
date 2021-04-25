@@ -269,18 +269,18 @@ void gsc_player_button_smoke(scr_entref_t id)
 
 void gsc_player_stance_get(scr_entref_t id)
 {
-	gentity_t *entity = &g_entities[id];
-
-	if (entity->client == NULL)
+	if (id >= MAX_CLIENTS)
 	{
 		stackError("gsc_player_stance_get() entity %i is not a player", id);
 		stackPushUndefined();
 		return;
 	}
 
-	if (entity->s.eFlags & EF_CROUCHING)
+	playerState_t *ps = SV_GameClientNum(id);
+
+	if (ps->pm_flags & PMF_CROUCH)
 		stackPushString("duck");
-	else if (entity->s.eFlags & EF_PRONE)
+	else if (ps->pm_flags & PMF_PRONE)
 		stackPushString("lie");
 	else
 		stackPushString("stand");
@@ -565,6 +565,20 @@ void gsc_player_isonladder(scr_entref_t id)
 
 	playerState_t *ps = SV_GameClientNum(id);
 	stackPushBool(ps->pm_flags & PMF_LADDER ? qtrue : qfalse);
+}
+
+void gsc_player_isusingturret(scr_entref_t id)
+{
+	gentity_t *entity = &g_entities[id];
+
+	if (entity->client == NULL)
+	{
+		stackError("gsc_player_isusingturret() entity %i is not a player", id);
+		stackPushUndefined();
+		return;
+	}
+
+	stackPushBool(entity->s.eFlags & EF_USETURRET ? qtrue : qfalse);
 }
 
 void gsc_player_getjumpslowdowntimer(scr_entref_t id)
