@@ -971,7 +971,7 @@ void gsc_utils_remotecommand()
 
 void gsc_utils_getsysmilliseconds()
 {
-	stackPushInt(Sys_MilliSeconds());
+	stackPushInt((int)Sys_Milliseconds());
 }
 
 #endif
