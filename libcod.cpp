@@ -810,8 +810,7 @@ void hook_gamestate_info(const char *format, ...)
 
 int clientfps[MAX_CLIENTS] = {0};
 int tempfps[MAX_CLIENTS] = {0};
-uint64_t fpstime[MAX_CLIENTS] = {0};
-
+int fpstime[MAX_CLIENTS] = {0};
 int previousbuttons[MAX_CLIENTS] = {0};
 
 cHook *hook_play_movement;
@@ -830,14 +829,14 @@ int play_movement(client_t *cl, usercmd_t *ucmd)
 
 	tempfps[clientnum]++;
 
-	if (Sys_Milliseconds() >= (fpstime[clientnum] + 1000))
+	if (svs.time >= (fpstime[clientnum] + 1000))
 	{
 		clientfps[clientnum] = tempfps[clientnum];
-		fpstime[clientnum] = Sys_Milliseconds();
+		fpstime[clientnum] = svs.time;
 		tempfps[clientnum] = 0;
 	}
 
-	if(ucmd->buttons & KEY_MASK_MELEE && !(previousbuttons[clientnum] & KEY_MASK_MELEE))
+	if (ucmd->buttons & KEY_MASK_MELEE && !(previousbuttons[clientnum] & KEY_MASK_MELEE))
 	{
 		if(codecallback_meleebutton)
 		{
@@ -846,7 +845,7 @@ int play_movement(client_t *cl, usercmd_t *ucmd)
 		}
 	}
 
-	if(ucmd->buttons & KEY_MASK_USE && !(previousbuttons[clientnum] & KEY_MASK_USE))
+	if (ucmd->buttons & KEY_MASK_USE && !(previousbuttons[clientnum] & KEY_MASK_USE))
 	{
 		if(codecallback_usebutton)
 		{
@@ -855,7 +854,7 @@ int play_movement(client_t *cl, usercmd_t *ucmd)
 		}
 	}
 
-	if(ucmd->buttons & KEY_MASK_FIRE && !(previousbuttons[clientnum] & KEY_MASK_FIRE))
+	if (ucmd->buttons & KEY_MASK_FIRE && !(previousbuttons[clientnum] & KEY_MASK_FIRE))
 	{
 		if(codecallback_attackbutton)
 		{
