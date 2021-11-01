@@ -969,9 +969,4 @@ void gsc_utils_remotecommand()
 	SVC_RemoteCommand(from, msg);
 }
 
-void gsc_utils_getsysmilliseconds()
-{
-	stackPushInt((int)Sys_Milliseconds());
-}
-
 #endif
