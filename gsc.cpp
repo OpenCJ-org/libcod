@@ -328,6 +328,10 @@ scr_method_t scriptMethods[] =
 	{"disableitempickup", gsc_player_disableitempickup, 0},
 	{"enableitempickup", gsc_player_enableitempickup, 0},
 	{"getcurrentoffhandslotammo", gsc_player_getcurrentoffhandslotammo, 0},
+#if COMPILE_JUMP == 1
+	{"setjump_height", gsc_player_setjump_height, 0},
+	{"setjump_slowdownenable", gsc_player_setjump_slowdownenable, 0},
+#endif
 #endif
 
 #if COMPILE_SQLITE == 1
