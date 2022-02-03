@@ -809,8 +809,8 @@ void hook_gamestate_info(const char *format, ...)
 }
 
 int clientfps[MAX_CLIENTS] = {0};
-int tempfps[MAX_CLIENTS] = {0};
-int fpstime[MAX_CLIENTS] = {0};
+int clientframes[MAX_CLIENTS] = {0};
+uint64_t clientframetime[MAX_CLIENTS] = {0};
 int previousbuttons[MAX_CLIENTS] = {0};
 
 cHook *hook_play_movement;
@@ -827,16 +827,16 @@ int play_movement(client_t *cl, usercmd_t *ucmd)
 
 	int clientnum = cl - svs.clients;
 
-	tempfps[clientnum]++;
+	clientframes[clientnum]++;
 
-	if (level.time - fpstime[clientnum] >= 1000)
+	if (Sys_Milliseconds() - clientframetime[clientnum] >= 1000)
 	{
-		if (tempfps[clientnum] > 1000)
-			tempfps[clientnum] = 1000;
+		if (clientframes[clientnum] > 1000)
+			clientframes[clientnum] = 1000;
 
-		clientfps[clientnum] = tempfps[clientnum];
-		fpstime[clientnum] = level.time;
-		tempfps[clientnum] = 0;
+		clientfps[clientnum] = clientframes[clientnum];
+		clientframetime[clientnum] = Sys_Milliseconds();
+		clientframes[clientnum] = 0;
 	}
 
 	if (ucmd->buttons & KEY_MASK_MELEE && !(previousbuttons[clientnum] & KEY_MASK_MELEE))
