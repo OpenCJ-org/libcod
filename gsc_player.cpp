@@ -758,6 +758,7 @@ void gsc_kick_slot()
 {
 	int id;
 	char* msg;
+	char tmp[128];
 
 	if ( ! stackGetParams("is", &id, &msg))
 	{
@@ -787,7 +788,10 @@ void gsc_kick_slot()
 		return;
 	}
 
-	SV_DropClient(client, msg);
+	strncpy(tmp, msg, sizeof(tmp));
+	tmp[sizeof(tmp)] = '\0';
+
+	SV_DropClient(client, tmp);
 	stackPushBool(qtrue);
 }
 
