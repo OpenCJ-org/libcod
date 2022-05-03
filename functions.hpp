@@ -408,6 +408,15 @@ static const SV_GetChallenge_t SV_GetChallenge = (SV_GetChallenge_t)0x0808D0C2;
 static const SV_GetChallenge_t SV_GetChallenge = (SV_GetChallenge_t)0x0808D18E;
 #endif
 
+typedef void (*SV_DirectConnect_t)(netadr_t from);
+#if COD_VERSION == COD2_1_0
+static const SV_DirectConnect_t SV_DirectConnect = (SV_DirectConnect_t)0x0808D0E6;
+#elif COD_VERSION == COD2_1_2
+static const SV_DirectConnect_t SV_DirectConnect = (SV_DirectConnect_t)0x0808E1EA;
+#elif COD_VERSION == COD2_1_3
+static const SV_DirectConnect_t SV_DirectConnect = (SV_DirectConnect_t)0x0808E2AA;
+#endif
+
 typedef void (*SVC_Info_t)(netadr_t from);
 #if COD_VERSION == COD2_1_0
 static const SVC_Info_t SVC_Info = (SVC_Info_t)0x08093980;
@@ -451,6 +460,15 @@ static const Scr_Error_t Scr_Error = (Scr_Error_t)0x08084DB4;
 static const Scr_Error_t Scr_Error = (Scr_Error_t)0x08085330;
 #elif COD_VERSION == COD2_1_3
 static const Scr_Error_t Scr_Error = (Scr_Error_t)0x080853FC;
+#endif
+
+typedef int (*Sys_MilliSeconds_t)(void);
+#if COD_VERSION == COD2_1_0
+static const Sys_MilliSeconds_t Sys_MilliSeconds = (Sys_MilliSeconds_t)0x080D3728;
+#elif COD_VERSION == COD2_1_2
+static const Sys_MilliSeconds_t Sys_MilliSeconds = (Sys_MilliSeconds_t)0x080D5C54;
+#elif COD_VERSION == COD2_1_3
+static const Sys_MilliSeconds_t Sys_MilliSeconds = (Sys_MilliSeconds_t)0x080D5D98;
 #endif
 
 typedef int (*G_FindConfigstringIndex_t)(const char *name, int start, int max, qboolean create, const char *fieldname);

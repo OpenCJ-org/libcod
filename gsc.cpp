@@ -1,8 +1,5 @@
 #include "gsc.hpp"
 
-#include <stdint.h>
-#include <sys/time.h>
-
 const char *stackGetParamTypeAsString(int param)
 {
 	if (param >= Scr_GetNumParam())
@@ -606,7 +603,7 @@ time_t sys_timeBase = 0;
 /**
  * @brief Current time in ms, using sys_timeBase as origin
  */
-uint64_t Sys_Milliseconds(void)
+uint64_t Sys_Milliseconds64(void)
 {
 	struct timeval tp;
 
