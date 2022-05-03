@@ -1052,8 +1052,10 @@ bool SVC_RateLimit( leakyBucket_t *bucket, int burst, int period )
 
 bool SVC_RateLimitAddress( netadr_t from, int burst, int period )
 {
-	leakyBucket_t *bucket = SVC_BucketForAddress( from, burst, period );
+	if (Sys_IsLANAddress(from))
+		return false;
 
+	leakyBucket_t *bucket = SVC_BucketForAddress( from, burst, period );
 	return SVC_RateLimit( bucket, burst, period );
 }
 
@@ -1165,7 +1167,7 @@ void hook_SV_DirectConnect(netadr_t from)
 void hook_SVC_Info(netadr_t from)
 {
 	// Prevent using getinfo as an amplifier
-	if ( SVC_RateLimitAddress( from, 10, 1000 ) )
+	if ( SVC_RateLimitAddress( from, 5, 1000 ) )
 	{
 		Com_DPrintf( "SVC_Info: rate limit from %s exceeded, dropping request\n", NET_AdrToString( from ) );
 		return;
@@ -1173,7 +1175,7 @@ void hook_SVC_Info(netadr_t from)
 
 	// Allow getinfo to be DoSed relatively easily, but prevent
 	// excess outbound bandwidth usage when being flooded inbound
-	if ( SVC_RateLimit( &outboundLeakyBucket, 10, 100 ) )
+	if ( SVC_RateLimit( &outboundLeakyBucket, 5, 100 ) )
 	{
 		Com_DPrintf( "SVC_Info: rate limit exceeded, dropping request\n" );
 		return;
@@ -1185,7 +1187,7 @@ void hook_SVC_Info(netadr_t from)
 void hook_SVC_Status(netadr_t from)
 {
 	// Prevent using getstatus as an amplifier
-	if ( SVC_RateLimitAddress( from, 10, 1000 ) )
+	if ( SVC_RateLimitAddress( from, 1, 1000 ) )
 	{
 		Com_DPrintf( "SVC_Status: rate limit from %s exceeded, dropping request\n", NET_AdrToString( from ) );
 		return;
@@ -1193,7 +1195,7 @@ void hook_SVC_Status(netadr_t from)
 
 	// Allow getstatus to be DoSed relatively easily, but prevent
 	// excess outbound bandwidth usage when being flooded inbound
-	if ( SVC_RateLimit( &outboundLeakyBucket, 10, 100 ) )
+	if ( SVC_RateLimit( &outboundLeakyBucket, 1, 100 ) )
 	{
 		Com_DPrintf( "SVC_Status: rate limit exceeded, dropping request\n" );
 		return;
