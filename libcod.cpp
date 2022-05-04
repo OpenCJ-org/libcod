@@ -925,7 +925,7 @@ int set_anim(playerState_t *ps, int animNum, animBodyPart_t bodyPart, int forceD
 // https://github.com/ioquake/ioq3/blob/master/code/server/sv_main.c
 
 // This is deliberately quite large to make it more of an effort to DoS
-#define MAX_BUCKETS	16384
+#define MAX_BUCKETS 16384
 #define MAX_HASHES 1024
 
 static leakyBucket_t buckets[ MAX_BUCKETS ];
@@ -1042,7 +1042,6 @@ bool SVC_RateLimit( leakyBucket_t *bucket, int burst, int period )
 		if ( bucket->burst < burst )
 		{
 			bucket->burst++;
-
 			return false;
 		}
 	}
@@ -1106,7 +1105,6 @@ void hook_SVC_RemoteCommand(netadr_t from, msg_t *msg)
 	else
 	{
 		stackPushInt((int)msg);
-
 		stackPushArray();
 		int args = Cmd_Argc();
 		for (int i = 2; i < args; i++)
@@ -1118,7 +1116,6 @@ void hook_SVC_RemoteCommand(netadr_t from, msg_t *msg)
 		}
 
 		stackPushString(NET_AdrToString(from));
-
 		short ret = Scr_ExecThread(codecallback_remotecommand, 3);
 		Scr_FreeThread(ret);
 	}
@@ -1187,7 +1184,7 @@ void hook_SVC_Info(netadr_t from)
 void hook_SVC_Status(netadr_t from)
 {
 	// Prevent using getstatus as an amplifier
-	if ( SVC_RateLimitAddress( from, 1, 1000 ) )
+	if ( SVC_RateLimitAddress( from, 2, 1000 ) )
 	{
 		Com_DPrintf( "SVC_Status: rate limit from %s exceeded, dropping request\n", NET_AdrToString( from ) );
 		return;
@@ -1195,7 +1192,7 @@ void hook_SVC_Status(netadr_t from)
 
 	// Allow getstatus to be DoSed relatively easily, but prevent
 	// excess outbound bandwidth usage when being flooded inbound
-	if ( SVC_RateLimit( &outboundLeakyBucket, 1, 100 ) )
+	if ( SVC_RateLimit( &outboundLeakyBucket, 2, 100 ) )
 	{
 		Com_DPrintf( "SVC_Status: rate limit exceeded, dropping request\n" );
 		return;
