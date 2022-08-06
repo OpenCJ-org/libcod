@@ -78,8 +78,8 @@
 #include "gsc_weapons.hpp"
 #endif
 
-#ifdef EXTRA_INCLUDES_INC
-#include "extra/includes.hpp"
+#ifdef SERVER_EXT_INCLUDES_INC
+#include "../server-ext//includes.hpp"
 #endif
 
 #define STACK_UNDEFINED 0

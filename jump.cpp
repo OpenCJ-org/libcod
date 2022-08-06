@@ -286,6 +286,14 @@ qboolean Jump_Check(pmove_t *pm, pml_t *pml)
 		return qfalse;
 	}
 	Jump_Start(pm, pml, getJumpHeight(ps));//jump_height->floatval);
+
+	extern int codecallback_jumpstart;
+	if(codecallback_jumpstart)
+	{
+		short ret = Scr_ExecEntThread(&g_entities[pm->ps->clientNum], codecallback_jumpstart, 0);
+		Scr_FreeThread(ret);
+	}
+
 	Jump_AddSurfaceEvent(ps, pml);
 	if ( ps->pm_flags & PMF_LADDER )
 	{

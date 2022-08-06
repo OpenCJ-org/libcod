@@ -218,6 +218,11 @@ int codecallback_vid_restart = 0;
 int codecallback_meleebutton = 0;
 int codecallback_usebutton = 0;
 int codecallback_attackbutton = 0;
+int codecallback_wbutton = 0;
+int codecallback_abutton = 0;
+int codecallback_sbutton = 0;
+int codecallback_dbutton = 0;
+int codecallback_jumpstart = 0;
 
 cHook *hook_gametype_scripts;
 int hook_codscript_gametype_scripts()
@@ -234,6 +239,13 @@ int hook_codscript_gametype_scripts()
 	codecallback_meleebutton = Scr_GetFunctionHandle("maps/mp/gametypes/_callbacksetup", "CodeCallback_MeleeButton", 0);
 	codecallback_usebutton = Scr_GetFunctionHandle("maps/mp/gametypes/_callbacksetup", "CodeCallback_UseButton", 0);
 	codecallback_attackbutton = Scr_GetFunctionHandle("maps/mp/gametypes/_callbacksetup", "CodeCallback_AttackButton", 0);
+
+	codecallback_wbutton = Scr_GetFunctionHandle("maps/mp/gametypes/_callbacksetup", "CodeCallback_MoveForward", 0);
+	codecallback_abutton = Scr_GetFunctionHandle("maps/mp/gametypes/_callbacksetup", "CodeCallback_MoveLeft", 0);
+	codecallback_sbutton = Scr_GetFunctionHandle("maps/mp/gametypes/_callbacksetup", "CodeCallback_MoveBackward", 0);
+	codecallback_dbutton = Scr_GetFunctionHandle("maps/mp/gametypes/_callbacksetup", "CodeCallback_MoveRight", 0);
+
+	codecallback_jumpstart = Scr_GetFunctionHandle("maps/mp/gametypes/_callbacksetup", "CodeCallback_StartJump", 0);
 
 	int (*sig)();
 	*(int *)&sig = hook_gametype_scripts->from;
@@ -812,6 +824,8 @@ int clientfps[MAX_CLIENTS] = {0};
 int clientframes[MAX_CLIENTS] = {0};
 uint64_t clientframetime[MAX_CLIENTS] = {0};
 int previousbuttons[MAX_CLIENTS] = {0};
+char previousforward[MAX_CLIENTS] = {0};
+char previousright[MAX_CLIENTS] = {0};
 
 cHook *hook_play_movement;
 int play_movement(client_t *cl, usercmd_t *ucmd)
@@ -865,7 +879,43 @@ int play_movement(client_t *cl, usercmd_t *ucmd)
 			Scr_FreeThread(ret);
 		}
 	}
+	if(ucmd->forwardmove & KEY_MASK_FORWARD && !(previousforward[clientnum] & KEY_MASK_FORWARD))
+	{
+		if(codecallback_wbutton)
+		{
+			short ret = Scr_ExecEntThread(cl->gentity, codecallback_wbutton, 0);
+			Scr_FreeThread(ret);
+		}
+	}
+	if(ucmd->forwardmove & KEY_MASK_BACK && !(previousforward[clientnum] & KEY_MASK_BACK))
+	{
+		if(codecallback_sbutton)
+		{
+			short ret = Scr_ExecEntThread(cl->gentity, codecallback_sbutton, 0);
+			Scr_FreeThread(ret);
+		}
+	}
 
+	if(ucmd->rightmove & KEY_MASK_MOVERIGHT && !(previousright[clientnum] & KEY_MASK_MOVERIGHT))
+	{
+		if(codecallback_dbutton)
+		{
+			short ret = Scr_ExecEntThread(cl->gentity, codecallback_dbutton, 0);
+			Scr_FreeThread(ret);
+		}
+	}
+
+	if(ucmd->rightmove & KEY_MASK_MOVELEFT && !(previousright[clientnum] & KEY_MASK_MOVELEFT))
+	{
+		if(codecallback_abutton)
+		{
+			short ret = Scr_ExecEntThread(cl->gentity, codecallback_abutton, 0);
+			Scr_FreeThread(ret);
+		}
+	}
+
+	previousforward[clientnum] = ucmd->forwardmove;
+	previousright[clientnum] = ucmd->rightmove;
 	previousbuttons[clientnum] = ucmd->buttons;
 	return ret;
 }

@@ -226,8 +226,8 @@ scr_function_t scriptFunctions[] =
 	{"getloadedweapons", gsc_weapons_getloadedweapons, 0},
 #endif
 
-#ifdef EXTRA_FUNCTIONS_INC
-#include "extra/functions.hpp"
+#ifdef SERVER_EXT_FUNCTIONS_INC
+#include "../server-ext//functions.hpp"
 #endif
 
 	{NULL, NULL, 0} /* terminator */
@@ -336,8 +336,8 @@ scr_method_t scriptMethods[] =
 	{"async_sqlite_create_entity_query_nosave", gsc_async_sqlite_create_entity_query_nosave, 0},
 #endif
 
-#ifdef EXTRA_METHODS_INC
-#include "extra/methods.hpp"
+#ifdef SERVER_EXT_METHODS_INC
+#include "../server-ext//methods.hpp"
 #endif
 
 	{NULL, NULL, 0} /* terminator */
