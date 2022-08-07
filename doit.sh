@@ -4,9 +4,8 @@
 # ./doit.sh cod2_1_0
 # ./doit.sh cod2_1_2
 # ./doit.sh cod2_1_3
-# ./doit.sh cod4_1_8x
 
-supported_versions="cod2_1_0 cod2_1_2 cod2_1_3 cod4_1_8x"
+supported_versions="cod2_1_0 cod2_1_2 cod2_1_3"
 
 cc="g++"
 options="-I. -m32 -fPIC -Wall" # -g -ggdb -Wno-write-strings - not full warnings
@@ -51,8 +50,6 @@ set -- "$cod_version"
 constants="-D COD_VERSION=${cod_version^^}"
 if [[ "$constants" == *"COD2"* ]]; then
 	constants+=" -D COD2"
-else
-    constants+=" -D COD4"
 fi
 
 # Set defines based on extensions
