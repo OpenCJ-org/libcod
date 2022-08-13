@@ -26,6 +26,7 @@ cvar_t *sv_downloadMessage;
 
 #define MAX_MASTER_SERVERS 5
 #define PORT_MASTER 20710
+#define FPS_FILTER_SIZE 20
 cvar_t *sv_master[MAX_MASTER_SERVERS];
 
 void hook_sv_init(const char *format, ...)
@@ -224,6 +225,8 @@ int codecallback_sbutton = 0;
 int codecallback_dbutton = 0;
 int codecallback_jumpstart = 0;
 
+int codecallback_fpschange = 0;
+
 cHook *hook_gametype_scripts;
 int hook_codscript_gametype_scripts()
 {
@@ -246,6 +249,8 @@ int hook_codscript_gametype_scripts()
 	codecallback_dbutton = Scr_GetFunctionHandle("maps/mp/gametypes/_callbacksetup", "CodeCallback_MoveRight", 0);
 
 	codecallback_jumpstart = Scr_GetFunctionHandle("maps/mp/gametypes/_callbacksetup", "CodeCallback_StartJump", 0);
+	
+	codecallback_fpschange = Scr_GetFunctionHandle("maps/mp/gametypes/_callbacksetup", "CodeCallback_FPSChange", 0);
 
 	int (*sig)();
 	*(int *)&sig = hook_gametype_scripts->from;
@@ -820,17 +825,53 @@ void hook_gamestate_info(const char *format, ...)
 	gamestate_size[clientnum] = gamestate;
 }
 
-int clientfps[MAX_CLIENTS] = {0};
-int clientframes[MAX_CLIENTS] = {0};
-uint64_t clientframetime[MAX_CLIENTS] = {0};
+int clientfps[MAX_CLIENTS] = {0}; //unused
+//int clientframes[MAX_CLIENTS] = {0};
+//uint64_t clientframetime[MAX_CLIENTS] = {0};
 int previousbuttons[MAX_CLIENTS] = {0};
 char previousforward[MAX_CLIENTS] = {0};
 char previousright[MAX_CLIENTS] = {0};
 
+int clientframetime[MAX_CLIENTS][FPS_FILTER_SIZE] = {{0}};
+int clientframetimeindex[MAX_CLIENTS] = {0};
+int previousframetime[MAX_CLIENTS] = {0};
+int clientframems[MAX_CLIENTS] = {0};
+
+bool overridePlayerAngles[MAX_CLIENTS] = {0};
+float overrideAngles[MAX_CLIENTS][3] = {{0}};
+float next_overrideAngles[MAX_CLIENTS][3] = {{0}};
+
 cHook *hook_play_movement;
 int play_movement(client_t *cl, usercmd_t *ucmd)
 {
+	int clientnum = cl - svs.clients;
+	int time = ucmd->serverTime;
+
+	clientframetime[clientnum][clientframetimeindex[clientnum]] = time - previousframetime[clientnum];
+	previousframetime[clientnum] = time;
+	
+	clientframetimeindex[clientnum]++;
+	if(clientframetimeindex[clientnum] >= FPS_FILTER_SIZE)
+		clientframetimeindex[clientnum] = 0;
+
+	float totalframetime = 0;
+	for(int i = 0; i < FPS_FILTER_SIZE; i++)
+		totalframetime += (float)clientframetime[clientnum][i];
+	float avgframetime = totalframetime / FPS_FILTER_SIZE;
+	int frametimerounded = round(avgframetime);
+	if(clientframems[clientnum] != frametimerounded)
+	{
+		clientframems[clientnum] = frametimerounded;
+		if(codecallback_fpschange)
+		{
+			stackPushInt(frametimerounded);
+			short ret = Scr_ExecEntThread(cl->gentity, codecallback_fpschange, 1);
+			Scr_FreeThread(ret);
+		}
+		printf("Other fps detected: %d\n", frametimerounded);
+	}
 	hook_play_movement->unhook();
+	
 
 	int (*sig)(client_t *cl, usercmd_t *ucmd);
 	*(int *)&sig = hook_play_movement->from;
@@ -839,11 +880,9 @@ int play_movement(client_t *cl, usercmd_t *ucmd)
 
 	hook_play_movement->hook();
 
-	int clientnum = cl - svs.clients;
+	//clientframes[clientnum]++;
 
-	clientframes[clientnum]++;
-
-	if (Sys_Milliseconds64() - clientframetime[clientnum] >= 1000)
+	/*if (Sys_Milliseconds64() - clientframetime[clientnum] >= 1000)
 	{
 		if (clientframes[clientnum] > 1000)
 			clientframes[clientnum] = 1000;
@@ -851,7 +890,7 @@ int play_movement(client_t *cl, usercmd_t *ucmd)
 		clientfps[clientnum] = clientframes[clientnum];
 		clientframetime[clientnum] = Sys_Milliseconds64();
 		clientframes[clientnum] = 0;
-	}
+	}*/
 
 	if (ucmd->buttons & KEY_MASK_MELEE && !(previousbuttons[clientnum] & KEY_MASK_MELEE))
 	{

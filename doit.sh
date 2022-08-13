@@ -28,8 +28,14 @@ if [ "$1" == "clean" ]; then
 	exit 1
 fi
 
+# If no version is supplied, default to cod2_1_3
+if [ $# -eq 0 ]; then
+	cod_version="cod2_1_3"
+else
+	cod_version=$1
+fi
+
 # Check that the COD version is supported
-cod_version=$1
 version_supported=false
 for version in $supported_versions
 do
@@ -43,6 +49,8 @@ done
 if [ "$version_supported" = false ]; then
     echo -e "**** COD version not supported: $cod_version\nSupported versions are: $supported_versions"
     exit 2
+else
+    echo -e "Building for version $cod_version"
 fi
 
 # Set the COD version and the appropriate defines now that we know the COD version is supported
