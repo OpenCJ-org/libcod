@@ -80,14 +80,14 @@ void gsc_player_get_userinfo(scr_entref_t id)
 
 	if ( ! stackGetParams("s", &key))
 	{
-		stackError("gsc_player_get_userinfo() argument is undefined or has a wrong type");
+		stackError("gsc_player_getuserinfo() argument is undefined or has a wrong type");
 		stackPushUndefined();
 		return;
 	}
 
 	if (id >= MAX_CLIENTS)
 	{
-		stackError("gsc_player_get_userinfo() entity %i is not a player", id);
+		stackError("gsc_player_getuserinfo() entity %i is not a player", id);
 		stackPushUndefined();
 		return;
 	}

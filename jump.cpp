@@ -290,7 +290,8 @@ qboolean Jump_Check(pmove_t *pm, pml_t *pml)
 	extern int codecallback_jumpstart;
 	if(codecallback_jumpstart)
 	{
-		short ret = Scr_ExecEntThread(&g_entities[pm->ps->clientNum], codecallback_jumpstart, 0);
+		stackPushInt(pm->cmd.serverTime);
+		short ret = Scr_ExecEntThread(&g_entities[pm->ps->clientNum], codecallback_jumpstart, 1);
 		Scr_FreeThread(ret);
 	}
 
