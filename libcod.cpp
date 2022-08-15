@@ -227,6 +227,8 @@ int codecallback_jumpstart = 0;
 
 int codecallback_fpschange = 0;
 
+objective_t player_objectives[MAX_CLIENTS][16];
+
 cHook *hook_gametype_scripts;
 int hook_codscript_gametype_scripts()
 {
@@ -258,6 +260,56 @@ int hook_codscript_gametype_scripts()
 	hook_gametype_scripts->hook();
 
 	return ret;
+}
+
+void G_UpdateSingleObjective(objective_t *from, objective_t *to)
+{
+	from->state = to->state;
+	from->origin[0] = to->origin[0];
+	from->origin[1] = to->origin[1];
+	from->origin[2] = to->origin[2];
+	from->entNum = to->entNum;
+	from->teamNum = to->teamNum;
+	from->icon = to->icon;
+}
+
+void custom_G_UpdateObjectives(void)
+{
+	int i, j;
+	gclient_s *client;
+	sessionTeam_t team;
+	objective_t *obj;
+
+	for ( i = 0; i < level.maxclients; i++ )
+	{
+		if ( level.gentities[i].r.inuse != 0 )
+		{
+			client = level.gentities[i].client;
+			team = ((level.gentities[i].client)->sess).team;
+			for ( j = 0; j < 16; j++ )
+			{
+				/* New code start: per-player objective functions */
+				obj = &player_objectives[i][j];
+				if ( obj->state != OBJST_EMPTY )
+				{
+					G_UpdateSingleObjective(&(client->ps).objective[j], obj);
+				}
+				else
+				{
+				/* New code end */
+					obj = &level.objectives[j];
+					if ((obj->state == OBJST_EMPTY) || ((obj->teamNum != 0 && (obj->teamNum != team))))
+					{
+						(client->ps).objective[j].state = OBJST_EMPTY;
+					}
+					else
+					{
+						G_UpdateSingleObjective(&(client->ps).objective[j], obj);
+					}
+				}
+			}
+		}
+	}
 }
 
 int player_disableitempickup[MAX_CLIENTS] = {0};
@@ -1656,6 +1708,7 @@ public:
 		cracking_hook_function(0x080DC60C, (int)Jump_RegisterDvars);
 #endif
 
+		cracking_hook_function(0x08109CE0, (int)custom_G_UpdateObjectives);
 #if COMPILE_BOTS == 1
 		cracking_hook_function(0x0809676C, (int)custom_SV_BotUserMove);
 #endif

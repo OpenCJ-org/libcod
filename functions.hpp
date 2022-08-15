@@ -111,6 +111,24 @@ static const Scr_GetNumParam_t Scr_GetNumParam = (Scr_GetNumParam_t)0x0808506A;
 static const Scr_GetNumParam_t Scr_GetNumParam = (Scr_GetNumParam_t)0x08085136;
 #endif
 
+typedef unsigned short (*Scr_GetConstString_t)(unsigned int param);
+#if COD_VERSION == COD2_1_0
+static const Scr_GetConstString_t Scr_GetConstString = (Scr_GetConstString_t)0x0; // Not tested
+#elif COD_VERSION == COD2_1_2
+static const Scr_GetConstString_t Scr_GetConstString = (Scr_GetConstString_t)0x0; // Not tested
+#elif COD_VERSION == COD2_1_3
+static const Scr_GetConstString_t Scr_GetConstString = (Scr_GetConstString_t)0x08084A08;
+#endif
+
+typedef void (*SetObjectiveIcon_t)(objective_t *obj, unsigned int index);
+#if COD_VERSION == COD2_1_0
+static const SetObjectiveIcon_t SetObjectiveIcon = (SetObjectiveIcon_t)0x0; // Not tested
+#elif COD_VERSION == COD2_1_2
+static const SetObjectiveIcon_t SetObjectiveIcon = (SetObjectiveIcon_t)0x0; // Not tested
+#elif COD_VERSION == COD2_1_3
+static const SetObjectiveIcon_t SetObjectiveIcon = (SetObjectiveIcon_t)0x081128CE;
+#endif
+
 typedef void (*SV_Cmd_ArgvBuffer_t)(int arg, char *buffer, int bufferLength);
 #if COD_VERSION == COD2_1_0
 static const SV_Cmd_ArgvBuffer_t SV_Cmd_ArgvBuffer = (SV_Cmd_ArgvBuffer_t)0x08060074;

@@ -2,6 +2,226 @@
 
 #if COMPILE_PLAYER == 1
 
+void gsc_player_objective_player_add(scr_entref_t id)
+{
+	if (id >= MAX_CLIENTS)
+	{
+		stackError("gsc_player_objective_player_add() entity is not a player");
+		stackPushUndefined();
+		return;
+	}
+
+	int args;
+	int objective_number;
+	objective_t *obj;
+	ushort index;
+	objectiveState_t state;
+
+	args = Scr_GetNumParam();
+	if ( args < 2 )
+	{
+		stackError("objective_add needs at least the first two parameters out of its parameter list of: index state [string] [position]\n");
+	}
+
+	stackGetParamInt(0, &objective_number);
+	if ( (objective_number < 0) || (0xf < objective_number) )
+	{
+		stackError("index is an illegal objective index. Valid indexes are 0 to 15");
+	}
+	extern objective_t player_objectives[MAX_CLIENTS][16];
+	obj = &player_objectives[id][objective_number];
+
+	if ( obj->entNum != 0x3ff )
+	{
+		if ( g_entities[obj->entNum].r.inuse != 0 )
+		{
+			g_entities[obj->entNum].r.svFlags = g_entities[obj->entNum].r.svFlags & 0xef;
+		}
+		obj->entNum = 0x3ff;
+	}
+
+	index = Scr_GetConstString(1);
+	if ( index == scr_const.empty )
+	{
+		state = OBJST_EMPTY;
+	}
+	else if ( index == scr_const.invisible )
+	{
+		state = OBJST_INVISIBLE;
+	}
+	else 
+	{
+		if ( index != scr_const.current )
+		{
+			state = OBJST_EMPTY;
+			stackError("Illegal objective state. Valid states are \"empty\", \"invisible\", \"current\"\n");
+		}
+		state = OBJST_CURRENT;
+	}
+	obj->state = state;
+
+	if ( 2 < args )
+	{
+		stackGetParamVector(2, obj->origin);
+		obj->origin[0] = (float)(int)obj->origin[0];
+		obj->origin[1] = (float)(int)obj->origin[1];
+		obj->origin[2] = (float)(int)obj->origin[2];
+		obj->entNum = 0x3ff;
+		if ( 3 < args )
+		{
+			SetObjectiveIcon(obj, 3);
+		}
+	}
+	obj->teamNum = 0;
+}
+
+void gsc_player_objective_player_delete(scr_entref_t id)
+{
+	if (id >= MAX_CLIENTS)
+	{
+		stackError("gsc_player_objective_player_delete() entity is not a player");
+		stackPushUndefined();
+		return;
+	}
+
+	int objective_number;
+	objective_t *obj;
+
+	stackGetParamInt(0, &objective_number);
+	if ( (objective_number < 0) || (0xf < objective_number) )
+	{
+		stackError("index is an illegal objective index. Valid indexes are 0 to 15\n");
+	}
+	extern objective_t player_objectives[MAX_CLIENTS][16];
+	obj = &player_objectives[id][objective_number];
+
+	if ( obj->entNum != 0x3ff )
+	{
+		if ( g_entities[obj->entNum].r.inuse != 0 )
+		{
+			g_entities[obj->entNum].r.svFlags = g_entities[obj->entNum].r.svFlags & 0xef;
+		}
+		obj->entNum = 0x3ff;
+	}
+
+	obj->state = OBJST_EMPTY;
+	obj->origin[0] = 0.0;
+	obj->origin[1] = 0.0;
+	obj->origin[2] = 0.0;
+	obj->entNum = 0x3ff;
+	obj->teamNum = 0;
+	obj->icon = 0;
+}
+
+void gsc_player_objective_player_icon(scr_entref_t id)
+{
+	if (id >= MAX_CLIENTS)
+	{
+		stackError("gsc_player_objective_player_icon() entity is not a player");
+		stackPushUndefined();
+		return;
+	}
+	int objective_number;
+	stackGetParamInt(0, &objective_number);
+	if ( (objective_number < 0) || (0xf < objective_number) )
+	{
+		stackError("index is an illegal objective index. Valid indexes are 0 to 15\n");
+	}
+
+	extern objective_t player_objectives[MAX_CLIENTS][16];
+  	SetObjectiveIcon(&player_objectives[id][objective_number], 1);
+}
+
+void gsc_player_objective_player_position(scr_entref_t id)
+{
+	if (id >= MAX_CLIENTS)
+	{
+		stackError("gsc_player_objective_player_position() entity is not a player");
+		stackPushUndefined();
+		return;
+	}
+
+	int objective_number;
+	objective_t *obj;
+
+	stackGetParamInt(0, &objective_number);
+	if ( (objective_number < 0) || (0xf < objective_number) )
+	{
+		stackError("index is an illegal objective index. Valid indexes are 0 to 15\n");
+	}
+	extern objective_t player_objectives[MAX_CLIENTS][16];
+	obj = &player_objectives[id][objective_number];
+
+	if ( obj->entNum != 0x3ff )
+	{
+		if ( g_entities[obj->entNum].r.inuse != 0 )
+		{
+			g_entities[obj->entNum].r.svFlags = g_entities[obj->entNum].r.svFlags & 0xef;
+		}
+		obj->entNum = 0x3ff;
+	}
+
+	stackGetParamVector(1, obj->origin);
+	obj->origin[0] = (float)(int)obj->origin[0];
+	obj->origin[1] = (float)(int)obj->origin[1];
+	obj->origin[2] = (float)(int)obj->origin[2];
+}
+
+void gsc_player_objective_player_state(scr_entref_t id)
+{
+	if (id >= MAX_CLIENTS)
+	{
+		stackError("gsc_player_objective_player_state() entity %i is not a player", id);
+		stackPushUndefined();
+		return;
+	}
+
+	int objective_number;
+	objective_t *obj;
+	ushort index;
+	objectiveState_t state;
+
+	stackGetParamInt(0, &objective_number);
+	if ( (objective_number < 0) || (0xf < objective_number) )
+	{
+		stackError("index is an illegal objective index. Valid indexes are 0 to 15\n");
+	}
+	extern objective_t player_objectives[MAX_CLIENTS][16];
+	obj = &player_objectives[id][objective_number];
+
+	index = Scr_GetConstString(1);
+	if ( index == scr_const.empty )
+	{
+		state = OBJST_EMPTY;
+	}
+	else if ( index == scr_const.invisible )
+	{
+		state = OBJST_INVISIBLE;
+	}
+	else 
+	{
+		if ( index != scr_const.current )
+		{
+			state = OBJST_EMPTY;
+			stackError("Illegal objective state. Valid states are \"empty\", \"invisible\", \"current\"\n");
+		}
+		state = OBJST_CURRENT;
+	}
+	obj->state = state;
+
+	if ( (state == OBJST_EMPTY) || (state == OBJST_INVISIBLE) )
+	{
+		if ( obj->entNum != 0x3ff )
+		{
+			if ( g_entities[obj->entNum].r.inuse != 0 )
+			{
+				g_entities[obj->entNum].r.svFlags = g_entities[obj->entNum].r.svFlags & 0xef;
+			}
+			obj->entNum = 0x3ff;
+		}
+	}
+}
+
 void gsc_player_velocity_set(scr_entref_t id)
 {
 	vec3_t velocity;
