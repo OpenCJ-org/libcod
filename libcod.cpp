@@ -227,6 +227,8 @@ int codecallback_jumpstart = 0;
 
 int codecallback_fpschange = 0;
 
+int codecallback_spectatorclientchanged = 0;
+
 objective_t player_objectives[MAX_CLIENTS][16];
 
 cHook *hook_gametype_scripts;
@@ -253,6 +255,7 @@ int hook_codscript_gametype_scripts()
 	codecallback_jumpstart = Scr_GetFunctionHandle("maps/mp/gametypes/_callbacksetup", "CodeCallback_StartJump", 0);
 	
 	codecallback_fpschange = Scr_GetFunctionHandle("maps/mp/gametypes/_callbacksetup", "CodeCallback_FPSChange", 0);
+	codecallback_spectatorclientchanged = Scr_GetFunctionHandle("maps/mp/gametypes/_callbacksetup", "CodeCallback_SpectatorClientChanged", 0);
 
 	int (*sig)();
 	*(int *)&sig = hook_gametype_scripts->from;
@@ -1039,6 +1042,67 @@ int play_endframe(gentity_t *ent)
 	return ret;
 }
 
+cHook *hook_stop_following;
+void stop_following(gentity_t *ent)
+{
+	hook_stop_following->unhook();
+
+	int (*sig)(gentity_t *);
+	*(int *)&sig = hook_stop_following->from;
+
+	int prevSpectatorClient = ent->client->spectatorClient;
+
+	sig(ent);
+
+	int spectatorClient = ent->client->spectatorClient;
+
+	if (prevSpectatorClient != spectatorClient)
+	{
+		if (codecallback_spectatorclientchanged)
+		{
+			stackPushUndefined();
+			short ret = Scr_ExecEntThread(ent, codecallback_spectatorclientchanged, 1);
+			Scr_FreeThread(ret);
+		}
+	}
+
+	hook_stop_following->hook();
+}
+
+cHook *hook_follow_cycle;
+void follow_cycle(gentity_t *ent, int dir)
+{
+	hook_follow_cycle->unhook();
+
+	int (*sig)(gentity_t *, int);
+	*(int *)&sig = hook_follow_cycle->from;
+
+	int prevSpectatorClient = ent->client->spectatorClient;
+
+	sig(ent, dir);
+
+	int spectatorClient = ent->client->spectatorClient;
+
+	if (spectatorClient != prevSpectatorClient)
+	{
+		if(codecallback_spectatorclientchanged)
+		{
+			if (spectatorClient == -1)
+			{
+				stackPushUndefined();
+			}
+			else
+			{
+				stackPushEntity(&g_entities[spectatorClient]);
+			}
+			short ret = Scr_ExecEntThread(ent, codecallback_spectatorclientchanged, 1);
+			Scr_FreeThread(ret);
+		}
+	}
+
+	hook_follow_cycle->hook();
+}
+
 int custom_animation[MAX_CLIENTS] = {0};
 cHook *hook_set_anim;
 int set_anim(playerState_t *ps, int animNum, animBodyPart_t bodyPart, int forceDuration, qboolean setTimer, qboolean isContinue, qboolean force)
@@ -1685,6 +1749,10 @@ public:
 		hook_set_anim->hook();
 		hook_touch_item_auto = new cHook(0x08105C80, (int)touch_item_auto);
 		hook_touch_item_auto->hook();
+		hook_stop_following = new cHook(0x80FF252, (int)stop_following);
+		hook_stop_following->hook();
+		hook_follow_cycle = new cHook(0x80FF4AC, (int)follow_cycle);
+		hook_follow_cycle->hook();
 #endif
 
 		cracking_hook_function(0x080EBF24, (int)hook_BG_IsWeaponValid);
