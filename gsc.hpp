@@ -79,7 +79,7 @@
 #endif
 
 #ifdef SERVER_EXT_INCLUDES_INC
-#include "../server-ext//includes.hpp"
+#include "../server-ext/includes.hpp"
 #endif
 
 #define STACK_UNDEFINED 0

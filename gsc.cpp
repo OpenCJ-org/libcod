@@ -227,7 +227,7 @@ scr_function_t scriptFunctions[] =
 #endif
 
 #ifdef SERVER_EXT_FUNCTIONS_INC
-#include "../server-ext//functions.hpp"
+#include "../server-ext/functions.hpp"
 #endif
 
 	{NULL, NULL, 0} /* terminator */
