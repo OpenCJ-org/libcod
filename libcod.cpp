@@ -26,7 +26,6 @@ cvar_t *sv_downloadMessage;
 
 #define MAX_MASTER_SERVERS 5
 #define PORT_MASTER 20710
-#define FPS_FILTER_SIZE 20
 cvar_t *sv_master[MAX_MASTER_SERVERS];
 
 void hook_sv_init(const char *format, ...)
@@ -887,11 +886,6 @@ int previousbuttons[MAX_CLIENTS] = {0};
 char previousforward[MAX_CLIENTS] = {0};
 char previousright[MAX_CLIENTS] = {0};
 
-int clientframetime[MAX_CLIENTS][FPS_FILTER_SIZE] = {{0}};
-int clientframetimeindex[MAX_CLIENTS] = {0};
-int previousframetime[MAX_CLIENTS] = {0};
-int clientframems[MAX_CLIENTS] = {0};
-
 bool overridePlayerAngles[MAX_CLIENTS] = {0};
 float overrideAngles[MAX_CLIENTS][3] = {{0}};
 float next_overrideAngles[MAX_CLIENTS][3] = {{0}};
@@ -902,28 +896,15 @@ int play_movement(client_t *cl, usercmd_t *ucmd)
 	int clientnum = cl - svs.clients;
 	int time = ucmd->serverTime;
 
-	clientframetime[clientnum][clientframetimeindex[clientnum]] = time - previousframetime[clientnum];
-	previousframetime[clientnum] = time;
-	
-	clientframetimeindex[clientnum]++;
-	if(clientframetimeindex[clientnum] >= FPS_FILTER_SIZE)
-		clientframetimeindex[clientnum] = 0;
-
-	float totalframetime = 0;
-	for(int i = 0; i < FPS_FILTER_SIZE; i++)
-		totalframetime += (float)clientframetime[clientnum][i];
-	float avgframetime = totalframetime / FPS_FILTER_SIZE;
-	int frametimerounded = round(avgframetime);
-	if(clientframems[clientnum] != frametimerounded)
+	int avgFrameTimeMs = 0;
+	if(opencj_updatePlayerFPS(clientnum, time, &avgFrameTimeMs))
 	{
-		clientframems[clientnum] = frametimerounded;
 		if(codecallback_fpschange)
 		{
-			stackPushInt(frametimerounded);
+			stackPushInt(avgFrameTimeMs);
 			short ret = Scr_ExecEntThread(cl->gentity, codecallback_fpschange, 1);
 			Scr_FreeThread(ret);
 		}
-		printf("Other fps detected: %d\n", frametimerounded);
 	}
 	hook_play_movement->unhook();
 	
