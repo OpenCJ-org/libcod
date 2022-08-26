@@ -457,6 +457,11 @@ const char* hook_AuthorizeState(int arg)
 
 void hook_ClientUserinfoChanged(int clientNum)
 {
+	// OpenCJ: no monkey business
+	svs.clients[clientNum].rate = 25000;
+	svs.clients[clientNum].snapshotMsec = 50;
+	// End OpenCJ
+
 	if ( ! codecallback_userinfochanged)
 	{
 		ClientUserinfoChanged(clientNum);
@@ -906,6 +911,12 @@ int play_movement(client_t *cl, usercmd_t *ucmd)
 			Scr_FreeThread(ret);
 		}
 	}
+
+	// OpenCJ: no monkey business
+	cl->rate = 25000;
+	cl->snapshotMsec = 50;
+	// End OpenCJ
+
 	hook_play_movement->unhook();
 	
 
