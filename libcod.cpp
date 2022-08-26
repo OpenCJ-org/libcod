@@ -915,6 +915,8 @@ int play_movement(client_t *cl, usercmd_t *ucmd)
 	// OpenCJ: no monkey business
 	cl->rate = 25000;
 	cl->snapshotMsec = 50;
+	if (ucmd->forwardmove == -128) ucmd->forwardmove = -127;
+	if (ucmd->rightmove == -128) ucmd->rightmove = -127;
 	// End OpenCJ
 
 	hook_play_movement->unhook();
