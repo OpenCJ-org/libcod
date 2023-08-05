@@ -815,6 +815,20 @@ void gsc_set_configstring()
 	stackPushBool(qtrue);
 }
 
+void gsc_utils_abs()
+{
+	float x;
+
+	if ( ! stackGetParams("f", &x))
+	{
+		stackError("gsc_utils_abs() argument is undefined or has a wrong type");
+		stackPushUndefined();
+		return;
+	}
+
+	stackPushFloat(abs(x));
+}
+
 void gsc_utils_sqrt()
 {
 	float x;
