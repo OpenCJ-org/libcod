@@ -413,6 +413,19 @@ void gsc_utils_round()
 	stackPushFloat( roundf(val * 100) / 100 );
 }
 
+void gsc_utils_ceil()
+{
+    float val;
+    if ( ! stackGetParams("f", &val))
+    {
+        stackError("gsc_utils_ceil() argument is undefined or has a wrong type");
+        stackPushUndefined();
+        return;
+    }
+
+    stackPushFloat( ceilf(val) );
+}
+
 void gsc_utils_file_link()
 {
 	char *source, *dest;
