@@ -163,7 +163,7 @@ fi
 
 echo "##### LINKING lib$1.so #####"
 objects="$(ls objects_$1/*.opp)"
-$cc -m32 -shared -L/lib32 -o bin/lib$1.so -ldl $objects -lpthread $mysql_link
+$cc -m32 -shared -L/lib32 -o bin/lib$1.so -ldl $objects -lpthread -lz $mysql_link
 rm objects_$1 -r
 
 if [ mysql_variant > 0 ]; then
